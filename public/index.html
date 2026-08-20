@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Study Flow AI-Planner with Productivity</title>
+  <script>
+    // Apply saved theme before first paint to avoid a flash of the wrong theme.
+    // Defaults to dark, matching the reference dashboard design.
+    (function () {
+      var theme = localStorage.getItem('ssp_theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/style.css" />
+  <!-- Chart.js for the analytics dashboard -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+  <!-- jsPDF for the downloadable PDF performance report -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- ===================== LANDING PAGE ===================== -->
+  <div id="landingPage" class="page landing-page active">
+    <nav class="landing-nav">
+      <div class="landing-logo">
+        <span class="landing-logo-icon">⚡</span>
+        <span>StudyFlow AI</span>
+      </div>
+      <div class="landing-nav-links">
+        <a href="#top" onclick="switchLandingSection(event,'top')">Home</a>
+        <a href="#loop" onclick="switchLandingSection(event,'loop')">How It Works</a>
+        <a href="#features" onclick="switchLandingSection(event,'features')">Features</a>
+        <a href="#tips" onclick="switchLandingSection(event,'tips')">Blog</a>
+        <a href="#about" onclick="switchLandingSection(event,'about')">About</a>
+        <a href="#contact" onclick="switchLandingSection(event,'contact')">Contact</a>
+      </div>
+      <div class="landing-nav-actions">
+        <button class="js-theme-toggle btn-icon" onclick="toggleTheme()" title="Toggle dark mode">☀️</button>
+        <button class="btn-primary landing-cta-small" onclick="switchToSignup()">Start Free →</button>
+      </div>
+    </nav>
+
+    <section id="top" class="landing-hero">
+      <div class="hero-badge">⚡ Free for every kind of student</div>
+      <h1 class="hero-title">
+        Your intelligent<br />
+        <span class="hero-title-accent">learning companion.</span>
+      </h1>
+
+      <div class="hero-loop-quote">
+        <span>Plan</span><span class="hero-loop-arrow">→</span><span>Study</span><span class="hero-loop-arrow">→</span><span>Track</span><span class="hero-loop-arrow">→</span><span>Test</span><span class="hero-loop-arrow">→</span><span>Analyze</span><span class="hero-loop-arrow">→</span><span>Improve</span>
+      </div>
+
+      <p class="hero-subtitle">
+        Turn your study goals into a smarter daily learning journey — one loop of planning, studying,
+        testing and improving at a time, tracked with real data, not guesswork.
+      </p>
+
+      <div class="hero-actions">
+        <button class="btn-primary hero-btn-primary" onclick="switchToSignup()">🚀 Start Learning</button>
+        <a class="btn-secondary hero-btn-secondary" href="#loop" onclick="switchLandingSection(event,'loop')">▷ See How It Works</a>
+      </div>
+
+      <div class="hero-stats">
+        <span class="hero-avatars">🧑‍🎓👩‍🎓🧑‍💻👨‍🎓</span>
+        <span><strong>50,000+</strong> students</span>
+        <span>⭐⭐⭐⭐⭐ <strong>4.9/5</strong> rating</span>
+        <span>✅ No credit card required</span>
+      </div>
+
+      <div class="hero-quote js-daily-quote">Loading today's motivation…</div>
+    </section>
+
+    <!-- ============ HOW STUDYFLOW AI WORKS — interactive loop ============ -->
+    <section id="loop" class="landing-section loop-section">
+      <h2>How StudyFlow AI works</h2>
+      <p class="features-sub">One loop, repeated every day. Tap a step to see what it actually does.</p>
+
+      <div class="loop-diagram" id="loopDiagram">
+        <button type="button" class="loop-step" data-step="plan" onclick="selectLoopStep('plan')">
+          <span class="loop-step-icon">🎯</span><span class="loop-step-label">PLAN</span>
+        </button>
+        <span class="loop-connector">→</span>
+        <button type="button" class="loop-step" data-step="study" onclick="selectLoopStep('study')">
+          <span class="loop-step-icon">📖</span><span class="loop-step-label">STUDY</span>
+        </button>
+        <span class="loop-connector">→</span>
+        <button type="button" class="loop-step" data-step="track" onclick="selectLoopStep('track')">
+          <span class="loop-step-icon">⏱️</span><span class="loop-step-label">TRACK</span>
+        </button>
+        <span class="loop-connector">→</span>
+        <button type="button" class="loop-step" data-step="test" onclick="selectLoopStep('test')">
+          <span class="loop-step-icon">📝</span><span class="loop-step-label">TEST</span>
+        </button>
+        <span class="loop-connector">→</span>
+        <button type="button" class="loop-step" data-step="analyze" onclick="selectLoopStep('analyze')">
+          <span class="loop-step-icon">📊</span><span class="loop-step-label">ANALYZE</span>
+        </button>
+        <span class="loop-connector">→</span>
+        <button type="button" class="loop-step" data-step="improve" onclick="selectLoopStep('improve')">
+          <span class="loop-step-icon">🚀</span><span class="loop-step-label">IMPROVE</span>
+        </button>
+      </div>
+
+      <div class="loop-detail-card" id="loopDetailCard">
+        <!-- populated by selectLoopStep() in app.js -->
+      </div>
+    </section>
+
+    <!-- ============ FEATURE OVERVIEW GRID ============ -->
+    <section id="features" class="landing-section features-section">
+      <h2>Everything the loop needs</h2>
+      <p class="features-sub">Every feature exists to move you through Plan → Study → Track → Test → Analyze → Improve — nothing else.</p>
+      <div class="features-grid">
+        <div class="feature-card">
+          <span class="feature-loop-tag">PLAN</span>
+          <div class="feature-icon">🗓️</div>
+          <h3>Smart Study Planner</h3>
+          <p>A visual weekly timeline for daily goals, subjects and deadlines — with AI rebalancing when a task gets missed.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-loop-tag">STUDY · TRACK</span>
+          <div class="feature-icon">⏱️</div>
+          <h3>Smart Study Timer</h3>
+          <p>Server-verified study time, not a browser countdown — pauses, resumes, and survives a closed tab or dead battery.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-loop-tag">TEST</span>
+          <div class="feature-icon">📝</div>
+          <h3>Tests &amp; Practice</h3>
+          <p>Subject and topic tests, AI-generated quizzes, and a mistake tracker that turns every wrong answer into a revision item.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-loop-tag">ANALYZE</span>
+          <div class="feature-icon">📊</div>
+          <h3>Learning Analytics</h3>
+          <p>Planned vs. actual study time, subject breakdowns and streaks — computed from real sessions, never invented numbers.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-loop-tag">IMPROVE</span>
+          <div class="feature-icon">🧠</div>
+          <h3>AI Study Coach</h3>
+          <p>Explains concepts, answers doubts, and tells you exactly what to study next based on your own weak areas.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-loop-tag">IMPROVE</span>
+          <div class="feature-icon">💼</div>
+          <h3>Career &amp; Placement</h3>
+          <p>Track applications, generate role-specific interview prep, and sync it straight into your weekly plan.</p>
+        </div>
+      </div>
+      <div class="features-cta">
+        <button class="btn-primary hero-btn-primary" onclick="switchToSignup()">🚀 Start Learning</button>
+      </div>
+    </section>
+
+    <section id="tips" class="landing-section">
+      <h2>📝 Quick Study Tips</h2>
+      <div class="tips-grid">
+        <div class="tip-card"><div class="tip-emoji">⏱️</div><h3>Use the Pomodoro rhythm</h3><p>25 minutes focused, 5 minutes off. It's easier to start a short sprint than an open-ended session.</p></div>
+        <div class="tip-card"><div class="tip-emoji">🎯</div><h3>One goal per session</h3><p>A vague "study math" plan gets abandoned. "Finish 10 integration problems" gets done.</p></div>
+        <div class="tip-card"><div class="tip-emoji">🔁</div><h3>Spaced repetition beats cramming</h3><p>Short, frequent reviews across days beat one long session the night before.</p></div>
+        <div class="tip-card"><div class="tip-emoji">🌙</div><h3>Protect your sleep</h3><p>Memory consolidation happens while you sleep — an all-nighter often undoes the studying itself.</p></div>
+      </div>
+    </section>
+
+    <section id="about" class="landing-section landing-section-alt">
+      <h2>ℹ️ About StudyFlow AI</h2>
+      <p class="about-text">
+        StudyFlow AI is a full-stack study companion built around one loop: Plan → Study → Track → Test →
+        Analyze → Improve. A visual weekly planner with priority tracking, a server-verified study timer,
+        real-time analytics and focus heatmaps showing where your time actually goes, a Kanban-style job
+        application tracker that generates interview prep plans automatically, gamified streaks and badges
+        to keep momentum, and an AI coach for study recommendations and quick doubt-clearing.
+      </p>
+    </section>
+
+    <section id="contact" class="landing-section">
+      <h2>📬 Contact</h2>
+      <p class="about-text">Questions, feedback, or bug reports? Reach out any time.</p>
+      <a class="contact-email" href="mailto:hello@studyflow.app">hello@studyflow.app</a>
+    </section>
+
+    <footer class="landing-footer">
+      <span>© <span id="footerYear"></span> StudyFlow AI. Built for students, by students.</span>
+    </footer>
+  </div>
+
+  <!-- ===================== LOGIN PAGE ===================== -->
+  <div id="loginPage" class="page auth-page">
+    <div class="auth-card">
+      <div class="auth-logo">
+        <div class="logo-icon">⚡</div>
+        <h1>StudyFlow AI</h1>
+        <p>Your personal productivity companion</p>
+      </div>
+
+      <div class="auth-form">
+        <h2>Welcome back!</h2>
+        <p class="subtitle">Sign in to continue to your study planner</p>
+
+        <div id="loginAlert" class="alert alert-error"></div>
+
+        <form onsubmit="handleLogin(event)" novalidate>
+          <div class="form-group">
+            <label for="loginEmail">Email Address</label>
+            <input type="email" id="loginEmail" placeholder="you@example.com" autocomplete="email" />
+            <div class="field-error" id="loginEmailError"></div>
+          </div>
+
+          <div class="form-group">
+            <label for="loginPassword">Password</label>
+            <input type="password" id="loginPassword" placeholder="Enter your password" autocomplete="current-password" />
+            <div class="field-error" id="loginPasswordError"></div>
+          </div>
+
+          <button type="submit" id="loginBtn" class="btn-primary">Sign In</button>
+        </form>
+
+        <div class="auth-switch">
+          Don't have an account? <a onclick="switchToSignup()">Sign up</a>
+        </div>
+        <div class="auth-switch">
+          <a onclick="showPage('landingPage')">← Back to home</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SIGNUP PAGE ===================== -->
+  <div id="signupPage" class="page auth-page">
+    <div class="auth-card">
+      <div class="auth-logo">
+        <div class="logo-icon">⚡</div>
+        <h1>StudyFlow AI</h1>
+        <p>Start planning smarter today</p>
+      </div>
+
+      <div class="auth-form">
+        <h2>Create your account</h2>
+        <p class="subtitle">Join thousands of students planning better</p>
+
+        <div id="signupAlert" class="alert alert-error"></div>
+
+        <form onsubmit="handleSignup(event)" novalidate>
+          <div class="form-group">
+            <label for="signupName">Full Name</label>
+            <input type="text" id="signupName" placeholder="Your name" autocomplete="name" />
+            <div class="field-error" id="signupNameError"></div>
+          </div>
+
+          <div class="form-group">
+            <label for="signupEmail">Email Address</label>
+            <input type="email" id="signupEmail" placeholder="you@example.com" autocomplete="email" />
+            <div class="field-error" id="signupEmailError"></div>
+          </div>
+
+          <div class="form-group">
+            <label for="signupPassword">Password</label>
+            <input type="password" id="signupPassword" placeholder="Min. 6 characters" autocomplete="new-password" />
+            <div class="field-error" id="signupPasswordError"></div>
+          </div>
+
+          <div class="form-group">
+            <label for="signupConfirm">Confirm Password</label>
+            <input type="password" id="signupConfirm" placeholder="Re-enter password" autocomplete="new-password" />
+            <div class="field-error" id="signupConfirmError"></div>
+          </div>
+
+          <button type="submit" id="signupBtn" class="btn-primary">Create Account</button>
+        </form>
+
+        <div class="auth-switch">
+          Already have an account? <a onclick="switchToLogin()">Sign in</a>
+        </div>
+        <div class="auth-switch">
+          <a onclick="showPage('landingPage')">← Back to home</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== ONBOARDING WIZARD (Phase 1) ===================== -->
+  <div id="onboardingPage" class="page onboarding-page">
+    <div class="onboarding-shell">
+      <div class="onboarding-brand"><span class="landing-logo-icon">⚡</span> StudyFlow AI</div>
+      <div id="onboardingRoot"></div>
+    </div>
+  </div>
+
+  <!-- ===================== MAIN APP (sidebar layout) ===================== -->
+  <div id="appPage" class="page app-page-v2">
+    <div class="app-shell-v2">
+
+      <!-- ============ SIDEBAR ============ -->
+      <aside class="sidebar">
+        <div class="sidebar-brand"><span class="landing-logo-icon">⚡</span> StudyFlow AI</div>
+
+        <nav class="sidebar-nav">
+          <button class="sidebar-link active" data-tab="dashboardTab" onclick="switchTab('dashboardTab')">🏠 <span>Dashboard</span></button>
+          <button class="sidebar-link" data-tab="plannerTab" onclick="switchTab('plannerTab')">📅 <span>Planner</span></button>
+          <button class="sidebar-link" data-tab="timerTab" onclick="switchTab('timerTab')">⏱️ <span>Study Timer</span></button>
+          <button class="sidebar-link" data-tab="practiceTab" onclick="switchTab('practiceTab')">📝 <span>Practice</span></button>
+          <button class="sidebar-link" data-tab="revisionTab" onclick="switchTab('revisionTab')">📇 <span>Revision</span></button>
+          <button class="sidebar-link" data-tab="analyticsTab" onclick="switchTab('analyticsTab')">📊 <span>Analytics</span></button>
+          <button class="sidebar-link" data-tab="aiCoachTab" onclick="switchTab('aiCoachTab')">🤖 <span>AI Coach</span></button>
+          <button class="sidebar-link" data-tab="resourcesTab" onclick="switchTab('resourcesTab')">📚 <span>Resources</span></button>
+          <button class="sidebar-link" data-tab="jobsTab" onclick="switchTab('jobsTab')">🎯 <span>Career</span></button>
+          <button class="sidebar-link" data-tab="achievementsTab" onclick="switchTab('achievementsTab')">🏆 <span>Achievements</span></button>
+          <button class="sidebar-link" data-tab="remindersTab" onclick="switchTab('remindersTab')">🔔 <span>Reminders</span></button>
+          <button class="sidebar-link" data-tab="profileTab" onclick="switchTab('profileTab')">🧑‍🎓 <span>Profile</span></button>
+        </nav>
+
+        <div class="sidebar-bottom">
+          <button class="sidebar-link" data-tab="settingsTab" onclick="switchTab('settingsTab')">⚙️ <span>Settings</span></button>
+          <button class="sidebar-link sidebar-logout" onclick="logout()">🚪 <span>Logout</span></button>
+        </div>
+      </aside>
+
+      <!-- ============ MOBILE BOTTOM NAV (Phase 15) ============ -->
+      <nav class="mobile-bottom-nav">
+        <button class="sidebar-link mobile-nav-item" data-tab="dashboardTab" onclick="switchTab('dashboardTab')">
+          <span class="mobile-nav-icon">🏠</span><span class="mobile-nav-label">Home</span>
+        </button>
+        <button class="sidebar-link mobile-nav-item" data-tab="timerTab" onclick="switchTab('timerTab')">
+          <span class="mobile-nav-icon">⏱️</span><span class="mobile-nav-label">Study</span>
+        </button>
+        <button class="sidebar-link mobile-nav-item" data-tab="practiceTab" onclick="switchTab('practiceTab')">
+          <span class="mobile-nav-icon">📝</span><span class="mobile-nav-label">Practice</span>
+        </button>
+        <button class="sidebar-link mobile-nav-item" data-tab="analyticsTab" onclick="switchTab('analyticsTab')">
+          <span class="mobile-nav-icon">📊</span><span class="mobile-nav-label">Insights</span>
+        </button>
+        <button class="sidebar-link mobile-nav-item" data-tab="profileTab" onclick="switchTab('profileTab')">
+          <span class="mobile-nav-icon">🧑‍🎓</span><span class="mobile-nav-label">Profile</span>
+        </button>
+        <button class="mobile-nav-item mobile-nav-more" onclick="openMoreMenu()">
+          <span class="mobile-nav-icon">☰</span><span class="mobile-nav-label">More</span>
+        </button>
+      </nav>
+
+      <!-- ============ MOBILE "MORE" SHEET ============ -->
+      <div id="moreMenuOverlay" class="modal-overlay more-menu-overlay" onclick="closeMoreMenuIfOverlay(event)">
+        <div class="modal-card more-menu-sheet">
+          <div class="modal-header">
+            <h2>More</h2>
+            <button class="modal-close" onclick="closeMoreMenu()">✕</button>
+          </div>
+          <div class="more-menu-grid">
+            <button class="more-menu-item" onclick="goToTabFromMore('plannerTab')">📅 <span>Planner</span></button>
+            <button class="more-menu-item" onclick="goToTabFromMore('revisionTab')">📇 <span>Revision</span></button>
+            <button class="more-menu-item" onclick="goToTabFromMore('aiCoachTab')">🤖 <span>AI Coach</span></button>
+            <button class="more-menu-item" onclick="goToTabFromMore('resourcesTab')">📚 <span>Resources</span></button>
+            <button class="more-menu-item" onclick="goToTabFromMore('jobsTab')">🎯 <span>Career</span></button>
+            <button class="more-menu-item" onclick="goToTabFromMore('achievementsTab')">🏆 <span>Achievements</span></button>
+            <button class="more-menu-item" onclick="goToTabFromMore('remindersTab')">🔔 <span>Reminders</span></button>
+            <button class="more-menu-item" onclick="goToTabFromMore('settingsTab')">⚙️ <span>Settings</span></button>
+          </div>
+          <button class="more-menu-logout" onclick="logout()">🚪 Logout</button>
+        </div>
+      </div>
+
+      <!-- ============ MAIN PANEL ============ -->
+      <main class="main-panel">
+
+        <div class="topbar">
+          <div class="topbar-greeting">
+            <h1 id="greetingHeadline">Good morning 👋</h1>
+            <p>Ready to make progress today, <span id="greetingName">Student</span>?</p>
+          </div>
+          <div class="topbar-actions">
+            <button class="js-theme-toggle btn-icon" onclick="toggleTheme()" title="Toggle dark mode">☀️</button>
+            <button class="btn-icon" id="notifBtn" onclick="toggleNotifications()" title="Enable browser reminders">🔔</button>
+          </div>
+        </div>
+
+        <!-- Gamification bar -->
+        <div class="gami-bar" id="gamiBar">
+          <div class="gami-level">
+            <span class="gami-level-badge" id="gamiLevel">Lv 1</span>
+            <div class="gami-xp-track">
+              <div class="gami-xp-fill" id="gamiXpFill" style="width:0%"></div>
+            </div>
+            <span class="gami-xp-text" id="gamiXpText">0 / 100 XP</span>
+          </div>
+          <div class="gami-stats">
+            <span class="gami-chip" id="gamiStreak" title="Current streak">🔥 0 day streak</span>
+            <span class="gami-chip gami-badges-chip" onclick="switchTab('achievementsTab')" title="View badges">🏅 <span id="gamiBadgeCount">0</span> badges</span>
+          </div>
+        </div>
+
+        <!-- Smart Reminder banner: "You still have Xh left today" (Phase 8) -->
+        <div class="remaining-reminder-banner" id="remainingReminderBanner" style="display:none">
+          <span class="remaining-reminder-icon">⏳</span>
+          <span id="remainingReminderText"></span>
+          <div class="remaining-reminder-actions">
+            <button class="btn-primary" onclick="remainingReminderAction('study')">Study Now</button>
+            <button class="btn-secondary" onclick="remainingReminderAction('plan')">Plan Remaining</button>
+            <button class="remaining-reminder-close" onclick="dismissRemainingReminderBanner()" title="Dismiss">✕</button>
+          </div>
+        </div>
+
+        <!-- ============ DASHBOARD TAB — "My Learning Space" ============ -->
+        <div id="dashboardTab" class="tab-content active">
+
+          <!-- Your Next Best Move -->
+          <div class="next-move-card" id="nextMoveCard">
+            <div class="ai-loading">Figuring out your next best move…</div>
+          </div>
+
+          <!-- Today's Learning + Continue Where You Left Off -->
+          <div class="learning-space-row">
+            <div class="dash-section-card today-learning-card">
+              <h3>🎯 Today's Learning</h3>
+              <div id="todayLearningBody"><div class="ai-loading">Loading…</div></div>
+            </div>
+            <div class="dash-section-card continue-card" id="continueCardWrap" style="display:none">
+              <h3>▶️ Continue Where You Left Off</h3>
+              <div id="continueCardBody"><div class="ai-loading">Checking your last session…</div></div>
+            </div>
+          </div>
+
+          <!-- AI noticed something -->
+          <div class="dash-insight-card" id="dashInsightCard" style="display:none">
+            <h4>✨ AI noticed something…</h4>
+            <p id="dashInsightText"></p>
+            <button class="btn-secondary" onclick="switchTab('aiCoachTab')">Fix My Plan →</button>
+          </div>
+
+          <!-- Daily Briefing -->
+          <div class="briefing-card" id="briefingCard">
+            <div class="briefing-header">
+              <span class="briefing-date" id="briefingDate">Loading…</span>
+            </div>
+            <ul class="briefing-list" id="briefingList">
+              <li>Loading your daily briefing…</li>
+            </ul>
+            <div class="briefing-ai-suggestion" id="briefingAiSuggestion" style="display:none">
+              <span class="briefing-ai-icon">🤖</span>
+              <span id="briefingAiText"></span>
+            </div>
+          </div>
+
+          <!-- Weak areas / Strengths -->
+          <div class="learning-space-row">
+            <div class="dash-section-card">
+              <h3>📌 Topics to Strengthen</h3>
+              <div id="dashWeakAreas"><p class="ai-subtitle">Loading…</p></div>
+            </div>
+            <div class="dash-section-card">
+              <h3>💪 Your Strengths</h3>
+              <div id="dashStrengths"><p class="ai-subtitle">Loading…</p></div>
+            </div>
+          </div>
+
+          <!-- Quick actions -->
+          <div class="quick-actions-row">
+            <button class="quick-action-btn" onclick="switchTab('timerTab')"><span>⏱️</span>Study Session</button>
+            <button class="quick-action-btn" onclick="switchTab('practiceTab')"><span>📝</span>Take a Test</button>
+            <button class="quick-action-btn" onclick="openQuickStudyModal()"><span>⏳</span>Quick Study</button>
+            <button class="quick-action-btn" onclick="switchTab('aiCoachTab')"><span>🤖</span>Ask AI</button>
+            <button class="quick-action-btn" onclick="switchTab('plannerTab')"><span>📅</span>Planner</button>
+          </div>
+
+          <div class="kpi-grid" id="homeKpiGrid">
+            <div class="kpi-card"><div class="kpi-value" id="homeKpiToday">0</div><div class="kpi-label">Tasks Today</div></div>
+            <div class="kpi-card"><div class="kpi-value" id="homeKpiRate">0%</div><div class="kpi-label">Completion Rate</div></div>
+            <div class="kpi-card"><div class="kpi-value" id="homeKpiMinutes">0</div><div class="kpi-label">Minutes Studied</div></div>
+            <div class="kpi-card"><div class="kpi-value" id="homeKpiStreak">0</div><div class="kpi-label">Day Streak</div></div>
+          </div>
+
+          <div class="dash-section-card">
+            <h3>🔥 Focus Activity Heatmap</h3>
+            <p class="ai-subtitle">When you actually get things done — darker cells mean more completed study minutes in that hour.</p>
+            <div id="homeHeatmap" class="heatmap-container"></div>
+          </div>
+
+          <div class="dash-section-card">
+            <div class="dash-toolbar">
+              <h3>📋 Today's Plan</h3>
+              <button class="btn-secondary" onclick="switchTab('plannerTab')">Open Planner →</button>
+            </div>
+            <div id="homeTodayPreview" class="timeline-list"></div>
+          </div>
+        </div>
+
+        <!-- ============ PLANNER TAB ============ -->
+        <div id="plannerTab" class="tab-content">
+
+          <div class="planner-view-toggle">
+            <button class="view-toggle-btn active" data-view="today" onclick="switchPlannerView('today')">Today</button>
+            <button class="view-toggle-btn" data-view="week" onclick="switchPlannerView('week')">Week</button>
+            <button class="view-toggle-btn" data-view="calendar" onclick="switchPlannerView('calendar')">Calendar</button>
+          </div>
+
+          <!-- Add session form -->
+          <div class="planner-form-card">
+            <div class="day-selector">
+              <button class="day-btn active" data-day="Mon" onclick="switchDay('Mon')">Mon</button>
+              <button class="day-btn" data-day="Tue" onclick="switchDay('Tue')">Tue</button>
+              <button class="day-btn" data-day="Wed" onclick="switchDay('Wed')">Wed</button>
+              <button class="day-btn" data-day="Thu" onclick="switchDay('Thu')">Thu</button>
+              <button class="day-btn" data-day="Fri" onclick="switchDay('Fri')">Fri</button>
+              <button class="day-btn" data-day="Sat" onclick="switchDay('Sat')">Sat</button>
+              <button class="day-btn" data-day="Sun" onclick="switchDay('Sun')">Sun</button>
+            </div>
+
+            <input type="text" id="subjectInput" class="planner-input" placeholder="Subject (e.g., Math)" />
+
+            <div class="time-row">
+              <span class="time-label">Start Time:</span>
+              <input type="time" id="startTime" class="time-input" />
+              <span class="time-label">Duration:</span>
+              <div class="duration-flex-group">
+                <input type="number" id="durationHours" class="duration-number" min="0" max="12" value="0" aria-label="Hours" />
+                <span class="duration-unit">hr</span>
+                <input type="number" id="durationMinutes" class="duration-number" min="0" max="59" step="5" value="30" aria-label="Minutes" />
+                <span class="duration-unit">min</span>
+              </div>
+              <button class="btn-generate" onclick="generateTimeSlot()">Generate Time Slot</button>
+            </div>
+
+            <div class="duration-presets">
+              <span class="duration-presets-label">Quick pick:</span>
+              <button type="button" class="preset-chip" onclick="setDurationPreset(0,15,event)">15m</button>
+              <button type="button" class="preset-chip" onclick="setDurationPreset(0,30,event)">30m</button>
+              <button type="button" class="preset-chip" onclick="setDurationPreset(0,45,event)">45m</button>
+              <button type="button" class="preset-chip" onclick="setDurationPreset(1,0,event)">1h</button>
+              <button type="button" class="preset-chip" onclick="setDurationPreset(1,30,event)">1h 30m</button>
+              <button type="button" class="preset-chip" onclick="setDurationPreset(2,0,event)">2h</button>
+              <button type="button" class="preset-chip" onclick="setDurationPreset(3,0,event)">3h</button>
+              <button type="button" class="preset-chip" onclick="setDurationPreset(4,0,event)">4h</button>
+            </div>
+
+            <input type="text" id="timeSlotInput" class="planner-input" placeholder="Time Slot (auto-generated or type manually)" />
+            <input type="text" id="goalInput" class="planner-input" placeholder="Goal/Task (e.g., Practice Algebra)" />
+
+            <div class="priority-select-row">
+              <span class="time-label">Priority:</span>
+              <button type="button" class="priority-chip priority-high" data-priority="High" onclick="setPriority('High',event)">🔴 High</button>
+              <button type="button" class="priority-chip priority-medium active" data-priority="Medium" onclick="setPriority('Medium',event)">🟡 Medium</button>
+              <button type="button" class="priority-chip priority-low" data-priority="Low" onclick="setPriority('Low',event)">🟢 Low</button>
+            </div>
+
+            <button id="addBtn" class="btn-add" onclick="addSession()">+ Add to Timetable</button>
+          </div>
+
+          <div class="stats-bar">
+            <span class="stat-chip" id="statTotal">0 sessions</span>
+            <span class="stat-chip" id="statDone">0 completed</span>
+          </div>
+
+          <!-- TODAY VIEW: visual vertical timeline -->
+          <div id="plannerViewToday" class="planner-view active">
+            <div id="sessionsList" class="timeline-list">
+              <div class="session-empty">📭 No study sessions yet. Add one above!</div>
+            </div>
+          </div>
+
+          <!-- WEEK VIEW -->
+          <div id="plannerViewWeek" class="planner-view">
+            <div id="weekGrid" class="week-grid"></div>
+          </div>
+
+          <!-- CALENDAR VIEW -->
+          <div id="plannerViewCalendar" class="planner-view">
+            <div class="calendar-toolbar">
+              <button class="btn-secondary" onclick="calendarMonthDelta(-1)">← Prev</button>
+              <span id="calendarMonthLabel" class="calendar-month-label"></span>
+              <button class="btn-secondary" onclick="calendarMonthDelta(1)">Next →</button>
+            </div>
+            <div id="calendarGrid" class="calendar-grid"></div>
+            <p class="game-hint">This calendar shows which weekdays currently have sessions scheduled (the planner is weekly, so the same weekday repeats).</p>
+          </div>
+
+          <div class="dash-section-card">
+            <h3>🔥 Focus Activity Heatmap</h3>
+            <p class="ai-subtitle">Your most productive hours, at a glance.</p>
+            <div id="plannerHeatmap" class="heatmap-container"></div>
+          </div>
+
+          <button id="downloadBtn" class="btn-download" onclick="downloadTimetable()">📄 Download Weekly Timetable</button>
+        </div>
+
+        <!-- ============ STUDY TIMER TAB ============ -->
+        <div id="timerTab" class="tab-content">
+          <h2 class="section-title">⏱️ Study Timer</h2>
+          <p class="ai-subtitle">A real, server-tracked study session — the backend, not your browser tab, is the source of truth for how long you actually studied.</p>
+
+          <!-- Today's Study Balance -->
+          <div class="dash-section-card timer-balance-card">
+            <h3>Today's Study Balance</h3>
+            <div id="timerBalanceBody">
+              <div class="ai-loading">Loading today's balance…</div>
+            </div>
+          </div>
+
+          <!-- AI Remaining Plan -->
+          <div class="dash-section-card remaining-plan-card" id="remainingPlanCard" style="display:none">
+            <div class="dash-toolbar">
+              <h3>🗓️ Remaining Plan</h3>
+              <button class="btn-secondary" onclick="switchTab('plannerTab')">Edit in Planner</button>
+            </div>
+            <p class="ai-subtitle" id="remainingPlanIntro"></p>
+            <div id="remainingPlanBody"></div>
+          </div>
+
+          <!-- Start form (shown when no live session) -->
+          <div class="ai-panel" id="timerStartPanel">
+            <h3>Start a tracked session</h3>
+            <div class="timer-start-grid">
+              <input type="text" id="timerSubjectInput" class="planner-input" placeholder="Subject (e.g. DBMS)" />
+              <input type="text" id="timerTopicInput" class="planner-input" placeholder="Topic / goal (optional)" />
+              <input type="number" id="timerMinutesInput" class="planner-input" placeholder="Minutes" value="25" min="1" />
+              <button class="btn-add" onclick="startTimerFromForm()">▶ Start Study</button>
+            </div>
+          </div>
+
+          <!-- Live timer (shown when a session is running/paused/interrupted) -->
+          <div class="ai-panel timer-live-panel-v2" id="timerLivePanel" style="display:none">
+            <div class="timer-live-header-v2">
+              <span class="timer-status-chip" id="timerStatusChip">RUNNING</span>
+            </div>
+
+            <div class="timer-ring-row">
+              <svg class="timer-progress-ring" viewBox="0 0 220 220">
+                <circle class="progress-ring-track" cx="110" cy="110" r="98" />
+                <circle class="progress-ring-fill" id="timerProgressRingFill" cx="110" cy="110" r="98" />
+              </svg>
+              <div class="timer-ring-center">
+                <div class="timer-display" id="timerDisplay">00:00:00</div>
+                <div class="timer-active-label">ACTIVE TIME</div>
+                <div class="timer-live-subject" id="timerLiveSubject">—</div>
+                <div class="timer-live-topic" id="timerLiveTopic"></div>
+              </div>
+            </div>
+
+            <div class="timer-sub-row">
+              <span id="timerTargetText">Target: 25:00</span>
+              <span id="timerRemainingText">Remaining: 25:00</span>
+            </div>
+            <div class="timer-live-actions">
+              <button class="btn-secondary" id="timerPauseResumeBtn" onclick="toggleTimerPauseResume()">⏸ Pause</button>
+              <button class="btn-add" onclick="finishTimerSession()">✅ Finish</button>
+              <button class="btn-secondary" onclick="enterFocusMode()">🎯 Focus Mode</button>
+              <button class="btn-secondary" onclick="toggleMinimizeTimer()">🗕 Minimize</button>
+            </div>
+          </div>
+
+          <!-- Post-session "Take Quick Test" prompt (Phase 13) -->
+          <div class="post-session-card" id="postSessionCard" style="display:none">
+            <span id="postSessionText"></span>
+            <div class="post-session-actions">
+              <button class="btn-primary" onclick="postSessionTakeQuickTest()">📝 Take Quick Test</button>
+              <button class="btn-secondary" onclick="dismissPostSessionCard()">Dismiss</button>
+            </div>
+          </div>
+
+          <!-- Today's Study History -->
+          <div class="dash-section-card" id="timerHistoryCard" style="display:none">
+            <h3>🕓 Today's Study History</h3>
+            <div id="timerHistoryBody" class="study-history-timeline"></div>
+          </div>
+        </div>
+
+        <!-- ============ PRACTICE TAB (Phase 10: Tests + Mistake Tracker) ============ -->
+        <div id="practiceTab" class="tab-content">
+          <h2 class="section-title">📝 Practice</h2>
+          <p class="ai-subtitle">Test what you just studied — subject/topic quizzes, AI-generated when configured, with every wrong answer saved to My Mistakes automatically.</p>
+
+          <!-- Setup form -->
+          <div class="ai-panel" id="practiceSetupPanel">
+            <h3>Start a test</h3>
+            <div id="practiceAdaptiveBanner" class="practice-adaptive-banner" style="display:none"></div>
+            <div class="timer-start-grid practice-setup-grid">
+              <input type="text" id="practiceSubjectInput" class="planner-input" placeholder="Subject (e.g. DBMS)" onchange="checkAdaptiveSuggestion()" />
+              <input type="text" id="practiceTopicInput" class="planner-input" placeholder="Topic (optional)" />
+              <select id="practiceDifficultySelect" class="planner-input">
+                <option value="easy">Easy</option>
+                <option value="medium" selected>Medium</option>
+                <option value="hard">Hard</option>
+              </select>
+              <select id="practiceCountSelect" class="planner-input">
+                <option value="5">5 questions</option>
+                <option value="10" selected>10 questions</option>
+                <option value="15">15 questions</option>
+              </select>
+            </div>
+            <button class="btn-add" id="practiceGenerateBtn" onclick="generatePracticeTest()">▶ Generate Quiz</button>
+          </div>
+
+          <!-- Quiz in progress -->
+          <div class="ai-panel" id="practiceQuizPanel" style="display:none">
+            <div class="dash-toolbar">
+              <h3 id="practiceQuizTitle">Quiz</h3>
+              <span class="quiz-source-tag" id="practiceQuizSource"></span>
+            </div>
+            <div id="practiceQuizBody"></div>
+            <button class="btn-add" onclick="submitPracticeTest()">✅ Submit Quiz</button>
+          </div>
+
+          <!-- Results -->
+          <div class="ai-panel" id="practiceResultsPanel" style="display:none">
+            <div id="practiceResultsBody"></div>
+          </div>
+
+          <!-- My Mistakes -->
+          <div class="dash-section-card" id="mistakesCard">
+            <div class="dash-toolbar">
+              <h3>❌ My Mistakes</h3>
+              <span class="ai-subtitle" id="mistakesCount"></span>
+            </div>
+            <div id="mistakesBody"><div class="ai-loading">Loading…</div></div>
+          </div>
+
+          <!-- Recent Test History -->
+          <div class="dash-section-card" id="testHistoryCard">
+            <h3>📊 Recent Tests</h3>
+            <div id="testHistoryBody"><div class="ai-loading">Loading…</div></div>
+          </div>
+        </div>
+
+        <!-- ============ REVISION TAB (Phase 12: Revision + Flashcards) ============ -->
+        <div id="revisionTab" class="tab-content">
+          <h2 class="section-title">📇 Revision</h2>
+          <p class="ai-subtitle">Cards resurface on a spaced schedule — the ones you struggle with come back sooner, the ones you know come back less often.</p>
+
+          <!-- Revision Due (interactive flip session) -->
+          <div class="dash-section-card" id="revisionDueCard">
+            <div class="dash-toolbar">
+              <h3>⏰ Revision Due</h3>
+              <span class="ai-subtitle" id="revisionDueCount"></span>
+            </div>
+            <div id="revisionDueBody"><div class="ai-loading">Loading…</div></div>
+          </div>
+
+          <!-- My Flashcards -->
+          <div class="dash-section-card">
+            <div class="dash-toolbar">
+              <h3>🗂️ My Flashcards</h3>
+              <div class="flashcard-stats-chips" id="flashcardStatsChips"></div>
+            </div>
+
+            <div class="ai-panel" id="flashcardCreatePanel">
+              <div class="flashcard-create-tabs">
+                <button class="view-toggle-btn active" data-mode="manual" onclick="switchFlashcardCreateMode('manual')">✍️ Manual</button>
+                <button class="view-toggle-btn" data-mode="ai" onclick="switchFlashcardCreateMode('ai')">✨ AI-Generated</button>
+              </div>
+
+              <div id="flashcardManualForm" class="flashcard-create-form">
+                <input type="text" id="fcSubjectInput" class="planner-input" placeholder="Subject" />
+                <input type="text" id="fcTopicInput" class="planner-input" placeholder="Topic (optional)" />
+                <input type="text" id="fcFrontInput" class="planner-input" placeholder="Front (question/term)" />
+                <input type="text" id="fcBackInput" class="planner-input" placeholder="Back (answer)" />
+                <button class="btn-add" onclick="createManualFlashcard()">+ Add Flashcard</button>
+              </div>
+
+              <div id="flashcardAiForm" class="flashcard-create-form" style="display:none">
+                <input type="text" id="fcAiSubjectInput" class="planner-input" placeholder="Subject" />
+                <input type="text" id="fcAiTopicInput" class="planner-input" placeholder="Topic (optional)" />
+                <select id="fcAiCountSelect" class="planner-input">
+                  <option value="5" selected>5 cards</option>
+                  <option value="8">8 cards</option>
+                  <option value="10">10 cards</option>
+                </select>
+                <button class="btn-add" id="fcAiGenerateBtn" onclick="generateAiFlashcards()">✨ Generate</button>
+              </div>
+            </div>
+
+            <div id="flashcardBrowserBody"><div class="ai-loading">Loading…</div></div>
+          </div>
+        </div>
+
+        <!-- ============ ANALYTICS TAB ============ -->
+        <div id="analyticsTab" class="tab-content">
+          <div class="dash-toolbar">
+            <h2 class="section-title">📊 Productivity Analytics</h2>
+            <div class="dash-toolbar-actions">
+              <button class="btn-secondary" id="pdfReportBtn" onclick="downloadPdfReport()">📄 Download PDF Report</button>
+              <button class="btn-secondary" id="csvReportBtn" onclick="downloadCsvReport()">📊 Download CSV</button>
+            </div>
+          </div>
+
+          <div class="kpi-grid" id="kpiGrid">
+            <div class="kpi-card"><div class="kpi-value" id="kpiTotal">0</div><div class="kpi-label">Total Sessions</div></div>
+            <div class="kpi-card"><div class="kpi-value" id="kpiRate">0%</div><div class="kpi-label">Completion Rate</div></div>
+            <div class="kpi-card"><div class="kpi-value" id="kpiMinutes">0</div><div class="kpi-label">Minutes Studied</div></div>
+            <div class="kpi-card"><div class="kpi-value" id="kpiStreak">0</div><div class="kpi-label">Day Streak</div></div>
+          </div>
+
+          <div class="chart-grid">
+            <div class="chart-card">
+              <h3>Weekly Activity</h3>
+              <canvas id="weeklyChart" height="220"></canvas>
+            </div>
+            <div class="chart-card">
+              <h3>Subject Breakdown</h3>
+              <canvas id="subjectChart" height="220"></canvas>
+            </div>
+            <div class="chart-card chart-card-wide">
+              <h3>30-Day Study Trend</h3>
+              <canvas id="trendChart" height="180"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============ AI COACH TAB ============ -->
+        <div id="aiCoachTab" class="tab-content">
+          <h2 class="section-title">🤖 AI Coach</h2>
+
+          <div id="coachInsightCard" class="dash-section-card ai-insight-card" style="display:none">
+            <h3>✨ AI Coach Insight</h3>
+            <p id="coachInsightText" class="ai-subtitle"></p>
+          </div>
+
+          <div class="ai-panel" id="learnAnythingPanel">
+            <h3>📖 Learn Anything</h3>
+            <p class="ai-subtitle">Paste a topic, a question, or your own notes — get a plain-language explanation, a worked example, and key points to remember.</p>
+            <div class="learn-anything-input-row">
+              <input type="text" id="learnAnythingInput" class="planner-input" placeholder="e.g. 'Explain recursion' or 'DBMS Normalization'" />
+              <button class="btn-generate" id="learnAnythingBtn" onclick="submitLearnAnything()">Explain</button>
+            </div>
+            <div id="learnAnythingResult"></div>
+          </div>
+
+          <div class="ai-panel">
+            <h3>Smart Study Recommendations</h3>
+            <p class="ai-subtitle">The facts in these cards (completion rate, streak, weak subjects, etc.) come from a transparent, rule-based engine that reads your own session history — never invented. When a real AI connection is configured, it narrates these same facts above and powers free-form coaching below.</p>
+            <div id="aiRecommendations" class="ai-list">
+              <div class="ai-loading">Analyzing your study patterns…</div>
+            </div>
+          </div>
+
+          <div class="ai-panel" id="coachChatPanel">
+            <h3>💬 Ask Your AI Coach</h3>
+            <p id="coachChatUnconfiguredNotice" class="ai-subtitle" style="display:none">
+              Free-form coaching isn't connected to a live AI on this deployment (missing <code>OPENAI_API_KEY</code>). You can still use the recommendation cards above and the quick doubt-chat bubble.
+            </p>
+            <div id="coachChatMessages" class="doubt-chat-messages coach-chat-messages">
+              <div class="doubt-msg doubt-msg-bot">Hi! Ask me things like "Explain recursion in simple terms" or "Help me prepare for a backend interview" — I'll use your real study stats to personalize the answer.</div>
+            </div>
+            <form class="doubt-chat-input-row" onsubmit="sendCoachChatMessage(event)">
+              <input type="text" id="coachChatInput" placeholder="Ask your AI coach anything…" autocomplete="off" />
+              <button type="submit" class="btn-generate">Send</button>
+            </form>
+          </div>
+
+          <p class="ai-coach-footnote">💬 Have a quick academic question instead? Use the chat bubble in the bottom-right corner any time.</p>
+        </div>
+
+        <!-- ============ JOBS TAB (Kanban) ============ -->
+        <div id="jobsTab" class="tab-content">
+          <h2 class="section-title">🎯 Career</h2>
+          <p class="ai-subtitle">Placement prep is a supporting feature here, not the main event — a snapshot of real readiness, plus your application tracker below.</p>
+
+          <!-- Career Readiness (Phase 14) -->
+          <div class="dash-section-card career-readiness-card" id="careerReadinessCard">
+            <h3>📈 Career Readiness</h3>
+            <div id="careerReadinessBody"><div class="ai-loading">Loading your readiness snapshot…</div></div>
+          </div>
+
+          <h3 class="career-section-heading">💼 Applications</h3>
+
+          <div class="kpi-grid" id="jobKpiGrid">
+            <div class="kpi-card"><div class="kpi-value" id="jobKpiTotal">0</div><div class="kpi-label">Total Applications</div></div>
+            <div class="kpi-card"><div class="kpi-value" id="jobKpiActive">0</div><div class="kpi-label">Active</div></div>
+            <div class="kpi-card"><div class="kpi-value" id="jobKpiInterview">0</div><div class="kpi-label">Interviews</div></div>
+            <div class="kpi-card"><div class="kpi-value" id="jobKpiOffer">0</div><div class="kpi-label">Offers</div></div>
+          </div>
+
+          <div class="job-form-card">
+            <div class="job-form-grid">
+              <input type="text" id="jobCompany" class="planner-input" placeholder="Company (e.g., Atlassian)" />
+              <input type="text" id="jobRole" class="planner-input" placeholder="Role (e.g., Software Engineer)" />
+              <select id="jobStatus" class="job-status-select">
+                <option value="Applied" selected>Applied</option>
+                <option value="Assessment">Assessment</option>
+                <option value="Interview">Interview</option>
+                <option value="Offer">Offer</option>
+                <option value="Rejected">Rejected</option>
+              </select>
+              <input type="date" id="jobDate" class="planner-input" title="Applied date" />
+              <input type="date" id="jobInterviewDate" class="planner-input" title="Interview date (optional)" />
+              <input type="text" id="jobLink" class="planner-input" placeholder="Job posting link (optional)" />
+              <input type="text" id="jobLocation" class="planner-input" placeholder="Location (optional)" />
+            </div>
+            <input type="text" id="jobNotes" class="planner-input" placeholder="Notes (optional)" />
+            <button id="jobAddBtn" class="btn-add" onclick="addJob()">+ Add Application</button>
+          </div>
+
+          <!-- Kanban board -->
+          <div class="kanban-board" id="kanbanBoard">
+            <div class="kanban-column" data-status="Applied">
+              <div class="kanban-column-header"><span>Applied</span><span class="kanban-count" id="kanbanCountApplied">0</span></div>
+              <div class="kanban-dropzone" data-status="Applied" id="kanbanApplied"></div>
+            </div>
+            <div class="kanban-column" data-status="Assessment">
+              <div class="kanban-column-header"><span>Assessment</span><span class="kanban-count" id="kanbanCountAssessment">0</span></div>
+              <div class="kanban-dropzone" data-status="Assessment" id="kanbanAssessment"></div>
+            </div>
+            <div class="kanban-column" data-status="Interview">
+              <div class="kanban-column-header"><span>Interview</span><span class="kanban-count" id="kanbanCountInterview">0</span></div>
+              <div class="kanban-dropzone" data-status="Interview" id="kanbanInterview"></div>
+            </div>
+            <div class="kanban-column" data-status="Offer">
+              <div class="kanban-column-header"><span>Offer</span><span class="kanban-count" id="kanbanCountOffer">0</span></div>
+              <div class="kanban-dropzone" data-status="Offer" id="kanbanOffer"></div>
+            </div>
+            <div class="kanban-column kanban-column-rejected" data-status="Rejected">
+              <div class="kanban-column-header"><span>Rejected</span><span class="kanban-count" id="kanbanCountRejected">0</span></div>
+              <div class="kanban-dropzone" data-status="Rejected" id="kanbanRejected"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============ RESOURCES TAB ============ -->
+        <div id="resourcesTab" class="tab-content">
+          <h2 class="section-title">📚 Domain Resource Generator</h2>
+          <p class="ai-subtitle">Tell us what you're studying — we'll generate direct search links into YouTube, Khan Academy, and documentation/reference sites. Links open in a new tab.</p>
+
+          <div class="resource-form-card">
+            <div class="resource-form-grid">
+              <input type="text" id="resourceDomain" class="planner-input" placeholder="Domain of Study (e.g., Computer Science, Physics)" />
+              <input type="text" id="resourceTopic" class="planner-input" placeholder="Topic Needs (e.g., Binary Search Trees)" />
+            </div>
+            <button id="resourceGenBtn" class="btn-add" onclick="generateResources()">✨ Generate Resources</button>
+          </div>
+
+          <div id="resourcesResults" class="resources-results"></div>
+        </div>
+
+        <!-- ============ ACHIEVEMENTS TAB ============ -->
+        <div id="achievementsTab" class="tab-content">
+          <h2 class="section-title">🏆 Your Achievements</h2>
+          <div id="badgesGrid" class="badges-grid"></div>
+        </div>
+
+        <!-- ============ REMINDERS TAB ============ -->
+        <div id="remindersTab" class="tab-content">
+          <h2 class="section-title">🔔 Reminders & Notifications</h2>
+          <div class="settings-card">
+            <p class="ai-subtitle">Browser notifications remind you before a session starts, celebrate when you complete one, and flag job application updates. They only fire while this tab is open.</p>
+            <button class="btn-primary reminders-enable-btn" onclick="toggleNotifications()">🔔 Enable Browser Reminders</button>
+
+            <div class="settings-row">
+              <label for="reminderMinutesSelect">Remind me before a session starts:</label>
+              <select id="reminderMinutesSelect" class="job-status-select" onchange="updateReminderMinutes(this.value)">
+                <option value="5">5 minutes</option>
+                <option value="10" selected>10 minutes</option>
+                <option value="15">15 minutes</option>
+                <option value="30">30 minutes</option>
+              </select>
+            </div>
+
+            <div class="settings-row">
+              <label for="remainingReminderSelect">Check in on remaining study time every:</label>
+              <select id="remainingReminderSelect" class="job-status-select" onchange="updateRemainingReminderInterval(this.value)">
+                <option value="60">1 hour</option>
+                <option value="120" selected>2 hours</option>
+                <option value="180">3 hours</option>
+                <option value="240">4 hours</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="settings-card" style="margin-top:16px">
+            <h3 style="margin-bottom:8px">🔕 Background Push Notifications</h3>
+            <p class="ai-subtitle">Works even when this tab (or your browser) is closed, via a service worker + Web Push. Requires the app owner to configure VAPID keys on the server — if they haven't, you'll see a friendly notice instead of an error.</p>
+            <div class="settings-row">
+              <button id="pushToggleBtn" class="btn-primary reminders-enable-btn" onclick="enablePushNotifications()">🔔 Enable Background Push Notifications</button>
+              <button class="btn-secondary" onclick="sendTestPush()">Send test push</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============ PROFILE TAB (Phase 21) ============ -->
+        <div id="profileTab" class="tab-content">
+          <h2 class="section-title">🧑‍🎓 Student Profile</h2>
+          <div id="profileRoot" class="profile-root"></div>
+        </div>
+
+        <!-- ============ SETTINGS TAB ============ -->
+        <div id="settingsTab" class="tab-content">
+          <h2 class="section-title">⚙️ Settings</h2>
+          <div class="settings-card">
+            <div class="settings-row">
+              <span>Dark mode</span>
+              <button class="js-theme-toggle btn-secondary" onclick="toggleTheme()">Toggle theme</button>
+            </div>
+            <div class="settings-row">
+              <span>Account</span>
+              <span id="settingsAccountInfo" class="settings-account-info">–</span>
+            </div>
+            <div class="settings-row">
+              <span>Log out of StudyFlow AI</span>
+              <button class="btn-logout" onclick="logout()">Logout</button>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ===================== CUSTOM INTERVIEW PREPARATION MODAL ===================== -->
+  <div id="prepConfigModal" class="modal-overlay" onclick="closePrepConfigModalIfOverlay(event)">
+    <div class="modal-card modal-card-wide">
+      <div class="modal-header">
+        <h2>🎯 Customize Interview Preparation</h2>
+        <button class="modal-close" onclick="closePrepConfigModal()">✕</button>
+      </div>
+      <div id="prepConfigBody" class="modal-body"></div>
+    </div>
+  </div>
+
+  <!-- ===================== INTERVIEW PREP PLAN MODAL ===================== -->
+  <div id="prepPlanModal" class="modal-overlay" onclick="closePrepPlanModalIfOverlay(event)">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>🗓️ Interview Prep Plan</h2>
+        <button class="modal-close" onclick="closePrepPlanModal()">✕</button>
+      </div>
+      <div id="prepPlanBody"></div>
+    </div>
+  </div>
+
+  <!-- ===================== TIMER: INTERRUPTED SESSION MODAL ===================== -->
+  <div id="timerInterruptedModal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>⏳ Session Interrupted</h2>
+      </div>
+      <div class="timer-modal-icon">😴</div>
+      <p class="ai-subtitle" style="text-align:center">
+        Your <strong id="timerInterruptedSubject">study</strong> session went quiet for a while — maybe the tab closed, your
+        device slept, or you lost connection. We only counted time while we could actually confirm you were active.
+      </p>
+      <div class="timer-modal-stats">
+        <div><div class="stat-value" id="timerInterruptedStudied">00:00:00</div><div class="stat-label">Studied</div></div>
+        <div><div class="stat-value" id="timerInterruptedTarget">00:00:00</div><div class="stat-label">Target</div></div>
+        <div><div class="stat-value" id="timerInterruptedRemaining">00:00:00</div><div class="stat-label">Remaining</div></div>
+      </div>
+      <div class="timer-modal-actions">
+        <button class="btn-add" onclick="resumeInterruptedSession()">▶ Resume</button>
+        <button class="btn-secondary" onclick="endInterruptedSession()">✅ End Session</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== TIMER: MULTI-DEVICE CONFLICT MODAL ===================== -->
+  <div id="timerConflictModal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>⚠️ Already Studying Elsewhere</h2>
+      </div>
+      <p class="ai-subtitle" style="text-align:center">
+        An active study session for <strong id="timerConflictSubject">—</strong> is already running.
+      </p>
+      <p class="timer-conflict-device" id="timerConflictDevice"></p>
+      <div class="timer-modal-stats">
+        <div><div class="stat-value" id="timerConflictElapsed">00:00:00</div><div class="stat-label">Already studied</div></div>
+      </div>
+      <div class="timer-modal-actions">
+        <button class="btn-secondary" onclick="conflictContinueThere()">Continue There</button>
+        <button class="btn-secondary" onclick="conflictEndExisting()">End That Session</button>
+        <button class="btn-add" onclick="conflictTakeOver()">Take Over Here</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== MINIMIZED FLOATING TIMER ===================== -->
+  <div id="miniTimerWidget" class="mini-timer-widget" onclick="openTimerFromMini()" title="Open study timer">
+    <span id="miniTimerDot" class="mini-timer-dot status-running"></span>
+    <div class="mini-timer-info">
+      <span class="mini-timer-subject" id="miniTimerSubject">Studying…</span>
+      <span class="mini-timer-clock" id="miniTimerClock">00:00:00</span>
+    </div>
+    <button class="mini-timer-open-btn" onclick="event.stopPropagation(); openTimerFromMini()">Open</button>
+  </div>
+
+  <!-- ===================== FLOATING AI DOUBT CHATBOT ===================== -->
+  <div id="doubtChatWidget" class="doubt-chat-widget">
+    <button id="doubtChatToggle" class="doubt-chat-toggle" onclick="toggleDoubtChat()" title="Ask a quick doubt">💬</button>
+    <div id="doubtChatPanel" class="doubt-chat-panel">
+      <div class="doubt-chat-header">
+        <span>🤖 Quick Doubt Clearer</span>
+        <button class="modal-close" onclick="toggleDoubtChat()">✕</button>
+      </div>
+      <div id="doubtChatMessages" class="doubt-chat-messages">
+        <div class="doubt-msg doubt-msg-bot">Hi! Ask me a quick academic question and I'll do my best to point you in the right direction. (This is a lightweight helper, not a full tutor — for deep explanations, try the Resources tab too!)</div>
+      </div>
+      <form class="doubt-chat-input-row" onsubmit="sendDoubtMessage(event)">
+        <input type="text" id="doubtChatInput" placeholder="Ask a quick question…" autocomplete="off" />
+        <button type="submit" class="btn-generate">Send</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast"></div>
+
+  <!-- Scripts -->
+  <!-- ===================== PHASE 13: FOCUS MODE OVERLAY ===================== -->
+  <div id="focusModeOverlay" class="focus-mode-overlay">
+    <button class="focus-exit-btn" onclick="exitFocusMode()" title="Exit Focus Mode (Esc)">✕ Exit Focus</button>
+    <div class="focus-mode-content">
+      <div class="focus-subject" id="focusSubject">—</div>
+      <div class="focus-topic" id="focusTopic"></div>
+      <div class="focus-timer-display" id="focusTimerDisplay">00:00:00</div>
+      <div class="focus-progress-track"><div class="focus-progress-fill" id="focusProgressFill" style="width:0%"></div></div>
+      <div class="focus-mode-actions">
+        <button class="btn-secondary" id="focusPauseResumeBtn" onclick="toggleTimerPauseResume()">⏸ Pause</button>
+        <button class="btn-add" onclick="finishTimerSession()">✅ Finish</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== PHASE 13: QUICK STUDY MODAL ("I HAVE X MINUTES") ===================== -->
+  <div id="quickStudyModal" class="modal-overlay" onclick="closeQuickStudyModalIfOverlay(event)">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>⏳ I have...</h2>
+        <button class="modal-close" onclick="closeQuickStudyModal()">✕</button>
+      </div>
+      <p class="ai-subtitle" style="text-align:center">Pick how much time you've got — we'll suggest something useful.</p>
+      <div class="quick-study-options">
+        <button class="quick-study-btn" onclick="startQuickStudy(5)">
+          <span class="quick-study-mins">5<small>min</small></span>
+          <span class="quick-study-suggestion">📇 Flashcards</span>
+        </button>
+        <button class="quick-study-btn" onclick="startQuickStudy(10)">
+          <span class="quick-study-mins">10<small>min</small></span>
+          <span class="quick-study-suggestion">📝 Quick Quiz</span>
+        </button>
+        <button class="quick-study-btn" onclick="startQuickStudy(15)">
+          <span class="quick-study-mins">15<small>min</small></span>
+          <span class="quick-study-suggestion">🎯 Weak-Topic Focus</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/api.js"></script>
+  <script src="/theme.js"></script>
+  <script src="/quotes.js"></script>
+  <script src="/gamification.js"></script>
+  <script src="/auth.js"></script>
+  <script src="/app.js"></script>
+  <script src="/onboarding.js"></script>
+  <script src="/profile.js"></script>
+  <script src="/heatmap.js"></script>
+  <script src="/briefing.js"></script>
+  <script src="/planner-views.js"></script>
+  <script src="/dashboard.js"></script>
+  <script src="/timer.js"></script>
+  <script src="/quickstudy.js"></script>
+  <script src="/practice.js"></script>
+  <script src="/revision.js"></script>
+  <script src="/jobs.js"></script>
+  <script src="/notifications.js"></script>
+  <script src="/pdf.js"></script>
+  <script src="/resources.js"></script>
+  <script src="/doubtchat.js"></script>
+  <script>
+    document.getElementById('footerYear').textContent = new Date().getFullYear();
+
+    // Register the service worker for background push notifications as soon
+    // as the app loads (registration is free/no-op if unsupported or if the
+    // user never enables push). Also reflect current subscription state on
+    // the Reminders tab toggle if the user is already logged in.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        registerServiceWorker();
+        if (getToken()) initPushToggleUi();
+      });
+    }
+  </script>
+</body>
+</html>
