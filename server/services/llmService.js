@@ -22,14 +22,21 @@ try {
   OpenAI = null;
 }
 
-const MODEL = process.env.OPENAI_MODEL || 'gpt-4o-mini';
+const MODEL = process.env.OPENROUTER_MODEL || 'openai/gpt-5.4';
 const MAX_HISTORY_MESSAGES = 8; // cost control: only recent turns are sent
 const MAX_TOKENS = 500; // cost control: keep responses concise
 
 let client = null;
 function getClient() {
-  if (!OpenAI || !process.env.OPENAI_API_KEY) return null;
-  if (!client) client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  if (!OpenAI || !process.env.OPENROUTER_API_KEY) return null;
+
+  if (!client) {
+    client = new OpenAI({
+      apiKey: process.env.OPENROUTER_API_KEY,
+      baseURL: 'https://openrouter.ai/api/v1'
+    });
+  }
+
   return client;
 }
 
